@@ -19,11 +19,12 @@ export var hard_coded_fps := 0
 var is_rendering = false
 
 var agents_names = ["Player", "Player2"]
+var port = 4246
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	var err_message = socket.connect_to_host("127.0.0.1", 4243)
+	var err_message = socket.connect_to_host("127.0.0.1", port)
 	print(err_message)
 	#time_start = OS.get_unix_time()
 	prev_time = OS.get_ticks_usec()
@@ -121,7 +122,7 @@ func process_remote_data(received_bytes):
 		socket.disconnect_from_host()
 		
 	else:
-		send_actions_to_agents(input_dict["agents_data"])
+		send_actions_to_agents(input_dict["actions_data"])
 		#direction = choose_direction_from_remote_data(input_dict["action"])
 
 func receive_and_process_data():
@@ -138,7 +139,7 @@ func receive_and_process_data():
 
 func prepare_data_to_send():
 	var data_to_send = {}
-	data_to_send["agents_data"] = []
+	data_to_send["states_data"] = []
 	for agent_name in agents_names:
 		var agent_path = "YSort/" + agent_name
 		var agent_position = vector2_to_array(get_node(agent_path).get_position())
@@ -158,7 +159,7 @@ func prepare_data_to_send():
 		if is_first_step == false:
 			agent_dict["reward"] = get_node(agent_path).get_reward()
 			
-		data_to_send["agents_data"].append(agent_dict)# += agent_dict
+		data_to_send["states_data"].append(agent_dict)# += agent_dict
 		
 	if is_first_step == false:
 		data_to_send["n_frames"] = frames_since_last_action_received
